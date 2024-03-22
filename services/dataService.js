@@ -1,3 +1,4 @@
+import { login } from "../controllers/auth.controller.js";
 import client from "../utils/client.js"
 
 export const getArtistById = async (id) => {
@@ -5,10 +6,7 @@ export const getArtistById = async (id) => {
     try {
         const artist = await client.artistes.findFirst({
             where: {
-                id_: id,
-                name_: {
-                    not: "0"
-                }
+                id_: Number(id),
             }
         })
 
@@ -47,3 +45,4 @@ export const getArtistByName = async (name) => {
         throw new Error(error)
     }
 }
+

@@ -87,10 +87,21 @@ export const getArtistes = expressAsyncHandler(async (req, res, next) => {
     })
 })
 
+export const getArtistesByGenre = expressAsyncHandler(async (req, res, next) => {
+
+    const { genre } = req.query;
+    console.log(genre);
+    // res.status(200).json({
+    //     status: true,
+    //     artists: artistes.filter((artist, index, arr) => arr.indexOf(artist) === index)
+    // })
+})
+
 
 export const getArtist = expressAsyncHandler(async (req, res, next) => {
     const { artist_id } = req.params
-    const artist = await getArtistByName(artist_id);
+    console.log(artist_id);
+    const artist = await getArtistById(artist_id);
     if (!artist) return next({ message: 'artist could not be found', status: 404 })
 
     // let artistSongs = await getArtistsSongs(artist.id_)
@@ -127,7 +138,7 @@ export const getAlbums = expressAsyncHandler(async (req, res, next) => {
 
 export const getGallery = expressAsyncHandler(async (req, res, next) => {
     const { page, pageSize, query } = req.query
-    
+
     const gallery = await client.gallery.findMany({
         take: parseInt(pageSize),
         skip: (page - 1) * pageSize,

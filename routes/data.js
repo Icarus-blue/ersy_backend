@@ -377,9 +377,120 @@ const router = Router()
  *           format: date-time
  */
 
+/**
+ * @swagger
+ * /artists/genre:
+ *   post:
+ *     summary: Retrieve artists by genre
+ *     tags: [Artists]
+ *     description: This endpoint returns artists filtered by the specified genre.
+ *     parameters:
+ *       - in: query
+ *         name: genre
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The genre to filter artists by.
+ *     responses:
+ *       200:
+ *         description: A list of artists filtered by genre.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: true
+ *                 artists:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Artist'
+ *       400:
+ *         description: Bad request, such as missing or invalid genre parameter.
+ *       500:
+ *         description: Server error.
+ */
+
+/**
+ * @swagger
+ * /data/artists/{artist_id}:
+ *   get:
+ *     summary: Retrieve details about a specific artist by ID
+ *     tags: [Artists]
+ *     description: This endpoint returns detailed information about an artist, identified by their unique ID. The response includes the artist's profile and could be extended to include associated songs.
+ *     parameters:
+ *       - in: path
+ *         name: artist_id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The unique identifier of the artist.
+ *     responses:
+ *       200:
+ *         description: Detailed information about the artist.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: true
+ *                 artist:
+ *                   type: object
+ *                   properties:
+ *                     id_:
+ *                       type: integer
+ *                       description: The artist's unique identifier.
+ *                       example: 1
+ *                     name_:
+ *                       type: string
+ *                       description: The name of the artist.
+ *                       example: "John Doe"
+ *                     nick_names:
+ *                       type: string
+ *                       description: The artist's nicknames.
+ *                       example: "JD"
+ *                     url_:
+ *                       type: string
+ *                       description: The URL to the artist's profile.
+ *                       example: "https://example.com/artists/johndoe"
+ *                     verification_status:
+ *                       type: boolean
+ *                       description: Indicates if the artist is verified.
+ *                       example: false
+ *                     dob:
+ *                       type: string
+ *                       format: date
+ *                       description: The artist's date of birth.
+ *                       example: "1990-01-01"
+ *                     genre:
+ *                       type: string
+ *                       description: The artist's music genre.
+ *                       example: "Pop"
+ *                     occupation:
+ *                       type: string
+ *                       description: The artist's occupation.
+ *                       example: "Musician"
+ *                     label:
+ *                       type: string
+ *                       description: The record label the artist is associated with.
+ *                       example: "Example Label"
+ *                     img_:
+ *                       type: string
+ *                       description: URL to the artist's image.
+ *                       example: "https://example.com/images/johndoe.jpg"                  
+ *       404:
+ *         description: Artist could not be found.
+ *       500:
+ *         description : Internal server error
+ */
+
 
 router.get('/videos', VideoController.getMusicVideos)
 router.get('/artists', VideoController.getArtistes)
+router.post('/artists/genre', VideoController.getArtistesByGenre)
 router.get("/artists/:artist_id", VideoController.getArtist)
 router.get('/albums', VideoController.getAlbums)
 router.get('/gallery', VideoController.getGallery)
