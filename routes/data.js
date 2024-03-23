@@ -301,7 +301,7 @@ const router = Router()
 
 /**
  * @swagger
- * /gallery:
+ * /data/gallery:
  *   get:
  *     summary: Retrieve a paginated list of gallery items
  *     tags: [Gallery]
