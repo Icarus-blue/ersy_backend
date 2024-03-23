@@ -499,6 +499,55 @@ const router = Router()
  */
 
 
+/**
+ * @swagger
+ * /data/artists/sortmode:
+ *   post:
+ *     summary: Sort artists based on a specified sorting mode 'views','z-a','a-z','birthday','o-to-y','y-to-o'
+ *     tags: [Artists]
+ *     description: >
+ *       Allows clients to retrieve a list of artists sorted based on various modes such as views, alphabetical order, 
+ *       monthly listeners, and more. The sorting mode is specified in the request body along with pagination options.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               filter:
+ *                 type: string
+ *                 description: The sorting mode for artists. Valid values are 'views', 'rip', 'a-z', 'z-a', 'y-to-o', 'o-to-y', 'recently-updated', 'birthday', 'monthly-listeners', 'social_followers', 'most_photos', 'following'.
+ *                 example: views
+ *               page:
+ *                 type: integer
+ *                 description: Page number for pagination, defaults to 1.
+ *                 example: 1
+ *               pageSize:
+ *                 type: integer
+ *                 description: Number of items per page for pagination, defaults to 10.
+ *                 example: 10
+ *     responses:
+ *       200:
+ *         description: A list of sorted artists based on the filter mode.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: boolean
+ *                   example: true
+ *                 artists:
+ *                   type: array
+ *                   items:
+ *                 
+ *       400:
+ *         description: Bad request, such as missing filter mode or invalid filter mode specified.
+ *       500:
+ *         description: Server error.
+ */
+
 router.get('/videos', VideoController.getMusicVideos)
 router.get('/artists', VideoController.getArtistes)
 router.post('/artists/genre', VideoController.getArtistesByGenre)

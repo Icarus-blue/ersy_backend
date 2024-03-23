@@ -118,17 +118,105 @@ export const getArtistesBySortingMode = expressAsyncHandler(async (req, res, nex
         return res.status(400).json({ message: 'fiter mode is required' });
     }
 
-    const offset = (page - 1) * pageSize;
+    let where = {
+        name_: {
+            not: '0'
+        }
+    };
 
-    const artistesByfilter = await client.$queryRaw`
-            SELECT * FROM artistes
-            WHERE FIND_IN_SET(${genre}, genre) > 0
-            LIMIT ${pageSize} OFFSET ${offset}
-        `;
+    let artistes = null;
+    switch (filter) {
+        case 'views':
+            artistes = await client.artistes.findMany({
+                take: parseInt(pageSize),
+                skip: (page - 1) * pageSize,
+                distinct: ['id_'],
+                orderBy: {
+                    views: 'desc',
+                },
+                where
+            })
+            break;
+        case 'rip':
+            break
+        case 'a-z':
+            artistes = await client.artistes.findMany({
+                take: parseInt(pageSize),
+                skip: (page - 1) * pageSize,
+                distinct: ['id_'],
+                orderBy: {
+                    name_: 'asc',
+                },
+                where
+            })
+            break
+        case 'z-a':
+            artistes = await client.artistes.findMany({
+                take: parseInt(pageSize),
+                skip: (page - 1) * pageSize,
+                distinct: ['id_'],
+                orderBy: {
+                    name_: 'desc',
+                },
+                where
+            })
+            break;
+        case 'y-to-o':
+            artistes = await client.artistes.findMany({
+                take: parseInt(pageSize),
+                skip: (page - 1) * pageSize,
+                distinct: ['id_'],
+                orderBy: {
+                    dob: 'asc',
+                },
+                where
+            })
+            break
+        case 'o-to-y':
+            artistes = await client.artistes.findMany({
+                take: parseInt(pageSize),
+                skip: (page - 1) * pageSize,
+                distinct: ['id_'],
+                orderBy: {
+                    dob: 'desc',
+                },
+                where
+            })
+            break
+        case 'birthday':
+            const offset = (page - 1) * pageSize;
+            artistes = await client.$queryRaw`SELECT * FROM artistes
+                WHERE MONTH(dob) = MONTH(CURDATE())
+              AND DAY(dob) = DAY(CURDATE())
+              ;          
+              `
+            break
+        case 'monthly-listeners':
+            artistes = await client.artistes.findMany({
+                take: parseInt(pageSize),
+                skip: (page - 1) * pageSize,
+                distinct: ['id_'],
+                orderBy: {
+                    monthly_listeners: 'desc',
+                },
+                where
+            })
+            break
+        case 'recently-updated':
+            break;
+        case 'social_followers':
+            break
+        case 'most_photos':
+            break
+        case 'following':
+            break
+    }
+
+    if (!artistes) return res.status(400).json({ message: 'Artists not found' });
 
     res.status(200).json({
         status: true,
-        artists: artistesByfilter.filter((artist, index, arr) => arr.indexOf(artist) === index)
+        artists: artistes.filter((artist, index, arr) => arr.indexOf(artist) === index)
     })
 })
 
