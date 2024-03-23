@@ -33,7 +33,6 @@ export const getMusicVideos = expressAsyncHandler(async (req, res, next) => {
             skip: (page - 1) * pageSize,
             distinct: ['title', 'album_id', 'id_']
         });
-        console.log(videos);
     }
 
     if (category === 'trending') {
@@ -78,6 +77,73 @@ export const getMusicVideosByGenre = expressAsyncHandler(async (req, res, next) 
     res.status(200).json({
         status: true,
         artists: videosByGenre.filter((artist, index, arr) => arr.indexOf(artist) === index)
+    })
+})
+
+export const getMusicVideosBySortingMode = expressAsyncHandler(async (req, res, next) => {
+
+    const { filter, page = 1, pageSize = 10 } = req.query;
+
+    if (!filter) {
+        return res.status(400).json({ message: 'fiter mode is required' });
+    }
+
+    let videos = null;
+    switch (filter) {
+        case 'views':
+            videos = await client.videos.findMany({
+                take: parseInt(pageSize),
+                skip: (page - 1) * pageSize,
+                orderBy: {
+                    views: 'desc',
+                },
+            })
+            break;
+        case 'recent_first':
+            videos = await client.videos.findMany({
+                take: parseInt(pageSize),
+                skip: (page - 1) * pageSize,
+                orderBy: {
+                    release_date: 'desc',
+                },
+            })
+            break;
+        case 'oldest_first':
+            videos = await client.videos.findMany({
+                take: parseInt(pageSize),
+                skip: (page - 1) * pageSize,
+                orderBy: {
+                    release_date: 'asc',
+                },
+            })
+            break
+        case 'date_old':
+            videos = await client.videos.findMany({
+                take: parseInt(pageSize),
+                skip: (page - 1) * pageSize,
+                distinct: ['id_'],
+                orderBy: {
+                    added_date: 'asc',
+                },
+            })
+            break;
+        case 'date_new':
+            videos = await client.videos.findMany({
+                take: parseInt(pageSize),
+                skip: (page - 1) * pageSize,
+                distinct: ['id_'],
+                orderBy: {
+                    added_date: 'desc',
+                },
+            })
+            break
+    }
+
+    if (!videos) return res.status(400).json({ message: 'Artists not found' });
+
+    res.status(200).json({
+        status: true,
+        videos: videos.filter((video, index, arr) => arr.indexOf(video) === index)
     })
 })
 
@@ -260,7 +326,7 @@ export const getAlbumsBySortingMode = expressAsyncHandler(async (req, res, next)
 
     let albums = null;
     switch (filter) {
-        case 'tracks':          
+        case 'tracks':
             albums = await client.albums.findMany({
                 take: parseInt(pageSize),
                 skip: (page - 1) * pageSize,
@@ -466,7 +532,7 @@ export const getPodcasts = expressAsyncHandler(async (req, res, next) => {
 })
 
 export const addEntry = expressAsyncHandler(async (req, res, next) => {
-    const { entry} = req.body
+    const { entry } = req.body
 
     // const gallery = await client.gallery.findMany({
     //     take: parseInt(pageSize),
@@ -477,7 +543,7 @@ export const addEntry = expressAsyncHandler(async (req, res, next) => {
 
     res.status(200).json({
         status: true,
-        memsage :'added correctly'
+        memsage: 'added correctly'
     })
 
 })

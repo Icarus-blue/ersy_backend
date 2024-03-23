@@ -7,48 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model videos {
-  id_              Int
-  artist_id        Int
-  artist_url       String?  @db.Text
-  artist_name      String?  @db.Text
-  artist_group_id  String?  @db.Text
-  feat_artists     String?  @db.Text
-  album_id         Int?
-  video_id         String?  @db.VarChar(1000)
-  title            String?  @db.VarChar(1000)
-  duration         Int
-  uploader         String?  @db.Text
-  views            String   @default("0") @db.VarChar(255)
-  release_date     DateTime @default(now()) @db.DateTime(0)
-  added_date       DateTime @default(now()) @db.DateTime(0)
-  description_     String?  @db.VarChar(1000)
-  img              String?  @db.VarChar(1000)
-  category         String   @default("discography") @db.VarChar(255)
-  old_category     String?  @default("") @db.VarChar(255)
-  category_history String?  @db.Text
-  embed            String?  @db.Text
-  embed2           String?  @db.Text
-  embed3           String?  @db.Text
-  embed4           String?  @db.Text
-  embed5           String?  @db.Text
-  data_            String?  @db.Text
-  tags             String   @default("") @db.VarChar(2000)
-  album            String?  @db.Text
-  writers          String?  @db.Text
-  producers        String?  @db.Text
-  producer_id      Int?
-  producer_name    String?  @db.Text
-  streams          String?  @db.Text
-  sales            String?  @db.Text
-  label            String?  @db.Text
-
-  @@index([album_id], map: "album_id")
-  @@index([artist_id], map: "artist_id")
-  @@ignore
-}
-
 model activity_logs {
   id_           Int      @id
   user_name     String   @db.Text
@@ -80,7 +38,7 @@ model albums {
   name_           String   @db.Text
   label           String?  @db.Text
   type_           String?  @db.Text
-  release_date    DateTime @default(dbgenerated("'1900-01-01'")) @db.Date
+  release_date    DateTime @default(dbgenerated("('1900-01-01')")) @db.Date
   date_format     String   @default("m/d/Y") @db.VarChar(10)
   date_           DateTime @default(now()) @db.DateTime(0)
   img_            String?  @default("default_album.png") @db.VarChar(255)
@@ -114,13 +72,21 @@ model articles {
   @@index([artist_id], map: "artist_id")
 }
 
+model artist_app_devices_tokens {
+  id_       Int    @id
+  artist_id Int
+  token     String @unique(map: "token") @db.VarChar(255)
+
+  @@index([artist_id], map: "artist_id")
+}
+
 model artistes {
   id_                 Int       @id
   name_               String    @db.VarChar(255)
   nick_names          String?   @db.Text
   url_                String    @db.VarChar(255)
   verification_status Boolean   @default(false)
-  dob                 DateTime? @default(dbgenerated("'0001-01-01'")) @db.Date
+  dob                 DateTime? @default(dbgenerated("('0001-01-01')")) @db.Date
   dob_format          String    @default("m/d/Y") @db.VarChar(10)
   birthplace          String?   @db.Text
   img_                String?   @db.VarChar(255)
@@ -504,8 +470,8 @@ model unsubscribed_users_subscriptions {
   artist_id Int
   date_     DateTime @default(now()) @db.DateTime(0)
 
-  @@index([user_id], map: "unsubscribed_users_subscriptions_ibfk_2")
   @@index([artist_id], map: "artist_id")
+  @@index([user_id], map: "unsubscribed_users_subscriptions_ibfk_2")
 }
 
 model user_session_tokens {
@@ -568,53 +534,74 @@ model users_subscriptions {
   @@index([user_id], map: "user_id")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model videos {
+  id_              Int      @id @default(autoincrement())
+  artist_id        Int
+  artist_url       String?  @db.Text
+  artist_name      String?  @db.Text
+  artist_group_id  String?  @db.Text
+  feat_artists     String?  @db.Text
+  album_id         Int?
+  video_id         String?  @db.VarChar(1000)
+  title            String?  @db.VarChar(1000)
+  duration         Int
+  uploader         String?  @db.Text
+  views            String   @default("0") @db.VarChar(255)
+  release_date     DateTime @default(now()) @db.DateTime(0)
+  added_date       DateTime @default(now()) @db.DateTime(0)
+  description_     String?  @db.VarChar(1000)
+  img              String?  @db.VarChar(1000)
+  category         String   @default("discography") @db.VarChar(255)
+  old_category     String?  @default("") @db.VarChar(255)
+  category_history String?  @db.Text
+  embed            String?  @db.Text
+  embed2           String?  @db.Text
+  embed3           String?  @db.Text
+  embed4           String?  @db.Text
+  embed5           String?  @db.Text
+  data_            String?  @db.Text
+  tags             String   @default("") @db.VarChar(2000)
+  album            String?  @db.Text
+  writers          String?  @db.Text
+  producers        String?  @db.Text
+  producer_id      Int?
+  producer_name    String?  @db.Text
+  streams          String?  @db.Text
+  sales            String?  @db.Text
+  label            String?  @db.Text
+
+  @@index([album_id], map: "album_id")
+  @@index([artist_id], map: "artist_id")
+}
+
 model view_history {
-  id_       Int
+  id_       Int      @id @default(autoincrement())
   user_id   Int
   artist_id Int
   view_date DateTime @default(now()) @db.DateTime(0)
 
   @@index([artist_id], map: "artist_id")
   @@index([user_id], map: "user_id")
-  @@ignore
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model visitors {
-  id_              Int
+  id_              Int      @id @default(autoincrement())
   ip_              String   @db.VarChar(20)
   user_id          Int      @default(0)
   first_visit_date DateTime @default(now()) @db.DateTime(0)
   last_visit_date  DateTime @default(now()) @db.DateTime(0)
-
-  @@ignore
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model visitors_count {
-  id_    Int
+  id_    Int @id @default(autoincrement())
   visits Int
-
-  @@ignore
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model volunteer {
-  id_          Int
+  id_          Int      @id @default(autoincrement())
   name_        String   @db.Text
   email_       String   @db.Text
   type_        String   @db.Text
   description_ String   @db.Text
   date_        DateTime @default(now()) @db.DateTime(0)
-
-  @@ignore
-}
-
-model artist_app_devices_tokens {
-  id_       Int    @id
-  artist_id Int
-  token     String @unique(map: "token") @db.VarChar(255)
-
-  @@index([artist_id], map: "artist_id")
 }

@@ -885,8 +885,65 @@ const router = Router()
  *                     example: 'Genre is required'
  */
 
+/**
+ * @swagger
+ * paths:
+ *   /data/videos/sortmode:
+ *     get:
+ *       summary: Sort music videos based on a specified mode
+ *       tags:
+ *         - Videos
+ *       description: Sorts music videos based on various criteria such as recency, popularity, etc., with support for pagination.
+ *       parameters:
+ *         - in: query
+ *           name: filter
+ *           required: true
+ *           schema:
+ *             type: string
+ *           description: The sorting mode for the videos. Valid options include 'recent_first', 'oldest_first', 'date_old', 'date_new'.
+ *         - in: query
+ *           name: page
+ *           schema:
+ *             type: integer
+ *             default: 1
+ *           description: Page number for pagination.
+ *         - in: query
+ *           name: pageSize
+ *           schema:
+ *             type: integer
+ *             default: 10
+ *           description: Number of videos per page for pagination.
+ *       responses:
+ *         200:
+ *           description: Successfully sorted and retrieved music videos.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: boolean
+ *                     example: true
+ *                   videos:
+ *                     type: array
+ *                     items:
+ *                       $ref: '#/components/schemas/Video'
+ *         400:
+ *           description: Bad request, such as missing or invalid sorting mode.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   message:
+ *                     type: string
+ *                     example: 'Filter mode is required'
+ */
+
+
 router.get('/videos', VideoController.getMusicVideos)
 router.get('/videos/genre', VideoController.getMusicVideosByGenre)
+router.get('/videos/sortmode', VideoController.getMusicVideosBySortingMode)
 
 router.get('/artists', VideoController.getArtistes)
 router.post('/artists/genre', VideoController.getArtistesByGenre)
