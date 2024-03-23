@@ -548,10 +548,60 @@ const router = Router()
  *         description: Server error.
  */
 
+/**
+ * @swagger
+ * paths:
+ *   /data/artists/filter:
+ *     post:
+ *       summary: Filter artists based on specified criteria
+ *       tags:
+ *         - Artists
+ *       description: Filters artists based on gender, age range, and group type. Allows for complex querying to find artists that match the given criteria.
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 gender:
+ *                   type: string
+ *                   description: The gender to filter by.
+ *                   example: 'Male'
+ *                 ageFilter:
+ *                   type: string
+ *                   description: An age range or specific age query. Valid options are '20>age', '30-40', '20-30', '40<age'.
+ *                   example: '20-30'
+ *                 groupType:
+ *                   type: string
+ *                   description: The type of artist grouping to filter by. Valid options are 'solo' and 'group'.
+ *                   example: 'solo'
+ *       responses:
+ *         200:
+ *           description: A list of artists that match the specified filters.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: boolean
+ *                     example: true
+ *                   artists:
+ *                     type: array
+ *                     items:
+ *                     
+ *         400:
+ *           description: Bad request, such as missing or invalid filters.
+ *         404:
+ *           description: No artists found matching the specified filters.
+ */
+
 router.get('/videos', VideoController.getMusicVideos)
 router.get('/artists', VideoController.getArtistes)
 router.post('/artists/genre', VideoController.getArtistesByGenre)
 router.post('/artists/sortmode', VideoController.getArtistesBySortingMode)
+router.post('/artists/filter', VideoController.getArtistesByfilter)
 router.get("/artists/:artist_id", VideoController.getArtist)
 router.get('/albums', VideoController.getAlbums)
 router.get('/gallery', VideoController.getGallery)

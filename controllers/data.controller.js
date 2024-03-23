@@ -1,6 +1,7 @@
 import expressAsyncHandler from "express-async-handler";
 import client from "../utils/client.js";
 import { getArtistById, getArtistByName, getArtistsSongs } from "../services/dataService.js";
+import { Prisma } from "@prisma/client";
 
 const generateWhere = (query, album_id) => {
 
@@ -218,6 +219,52 @@ export const getArtistesBySortingMode = expressAsyncHandler(async (req, res, nex
         status: true,
         artists: artistes.filter((artist, index, arr) => arr.indexOf(artist) === index)
     })
+})
+
+export const getArtistesByfilter = expressAsyncHandler(async (req, res, next) => {
+    const { gender, ageFilter, groupType, pageSize = 10, page = 1 } = req.body;
+    // Start building the where clause based on provided filters
+    let sqlQuery = 'SELECT * FROM artistes WHERE 1=1'; // Always true, serves as an initializer
+
+    // Gender filter
+    if (gender) {
+        sqlQuery += ` AND gender = '${gender}'`; // Ensure gender values are sanitized or validated
+    }
+
+    // Group type filter
+    if (groupType) {
+        sqlQuery += ` AND group_type = '${groupType}'`; // Validate/sanitize input
+    }
+
+    // Age filter (this example uses MySQL TIMESTAMPDIFF, adjust for your DBMS)
+    if (ageFilter) {
+        const currentYear = new Date().getFullYear();
+        switch (ageFilter) {
+            case '20>age':
+                sqlQuery += " AND TIMESTAMPDIFF(YEAR, dob, CURDATE()) < 20";
+                break;
+            case '30-40':
+                sqlQuery += " AND TIMESTAMPDIFF(YEAR, dob, CURDATE()) BETWEEN 30 AND 40";
+                break;
+            case '20-30':
+                sqlQuery += " AND TIMESTAMPDIFF(YEAR, dob, CURDATE()) BETWEEN 20 AND 30";
+                break;
+            case '40<age':
+                sqlQuery += " AND TIMESTAMPDIFF(YEAR, dob, CURDATE()) > 40";
+                break;
+        }
+    }
+    let baseQuery = Prisma.raw(sqlQuery);
+    const offset = (page - 1) * pageSize;
+
+
+    const artists = await client.$queryRaw(baseQuery, pageSize, offset);
+
+    if (artists.length === 0) {
+        return res.status(404).json({ message: 'No artists found with the specified filters.' });
+    }
+
+    res.json({ status: true, artists });
 })
 
 
