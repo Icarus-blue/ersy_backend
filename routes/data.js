@@ -940,10 +940,142 @@ const router = Router()
  *                     example: 'Filter mode is required'
  */
 
+/**
+ * @swagger
+ * paths:
+ *   /data/videos/filter:
+ *     get:
+ *       summary: Fetch music videos based on filters
+ *       tags:
+ *         - Videos
+ *       description: Retrieves music videos by applying filters on the associated artist's gender, age, and group type.
+ *       parameters:
+ *         - in: query
+ *           name: gender
+ *           schema:
+ *             type: string
+ *           description: Filter videos by the gender of the artist.
+ *         - in: query
+ *           name: ageFilter
+ *           schema:
+ *             type: string
+ *           description: Filter videos by the age range of the artist. Valid values are '20>age', '30-40', '20-30', '40<age'.
+ *         - in: query
+ *           name: groupType
+ *           schema:
+ *             type: string
+ *           description: Filter videos by the group type of the artist. Examples include 'solo', 'band', etc.
+ *         - in: query
+ *           name: pageSize
+ *           schema:
+ *             type: integer
+ *             default: 10
+ *           description: Number of videos to return per page.
+ *         - in: query
+ *           name: page
+ *           schema:
+ *             type: integer
+ *             default: 1
+ *           description: Page number for pagination.
+ *       responses:
+ *         200:
+ *           description: An array of music videos that match the specified filters.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: boolean
+ *                     example: true
+ *                   videos:
+ *                     type: array
+ *                     items:
+ *                       $ref: '#/components/schemas/Video'
+ *         404:
+ *           description: No videos found matching the specified filters.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   message:
+ *                     type: string
+ *                     example: 'No videos found with the specified filters.'
+ *         500:
+ *           description: Internal server error.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   message:
+ *                     type: string
+ *                     example: 'Internal server error.'
+*/
+
+/**
+ * @swagger
+ * paths:
+ *   /data/videos/search:
+ *     post:
+ *       summary: Search for music videos by title
+ *       tags:
+ *         - Videos
+ *       description: Performs a search for music videos that contain the specified search term in their title.
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - search
+ *               properties:
+ *                 search:
+ *                   type: string
+ *                   description: The search term to query within video titles.
+ *                   example: "Love"
+ *                 page:
+ *                   type: number
+ *                   description: page .
+ *                   example: "1"
+ *                 pagesize:
+ *                   type: number
+ *                   description: page size.
+ *                   example: "10"
+ *       responses:
+ *         200:
+ *           description: Successfully found matching videos.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: boolean
+ *                     example: true
+ *                   videos:
+ *                     type: array
+ *                     items:
+ *                       $ref: '#/components/schemas/Video'
+ *         404:
+ *           description: No videos found matching the search criteria.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   message:
+ *                     type: string
+ *                     example: 'No videos found with the specified search term.'
+ */
 
 router.get('/videos', VideoController.getMusicVideos)
 router.get('/videos/genre', VideoController.getMusicVideosByGenre)
 router.get('/videos/sortmode', VideoController.getMusicVideosBySortingMode)
+router.get('/videos/filter', VideoController.getMusicVideosByFilter)
+router.post('/videos/search', VideoController.getMusicVideosBySearch)
 
 router.get('/artists', VideoController.getArtistes)
 router.post('/artists/genre', VideoController.getArtistesByGenre)

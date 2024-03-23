@@ -58,27 +58,36 @@ export const getMusicVideos = expressAsyncHandler(async (req, res, next) => {
 })
 
 export const getMusicVideosByGenre = expressAsyncHandler(async (req, res, next) => {
+    const { genre, pageSize = 10, page = 1 } = req.body;
+    let sqlQuery = `SELECT v.* FROM videos v
+                    INNER JOIN artistes a ON v.artist_id = a.id_
+                    WHERE 1=1`;
 
-    const { genre, page = 1, pageSize = 10 } = req.query;
-
-    if (!genre) {
-        return res.status(400).json({ message: 'Genre is required' });
+    // Genre filter
+    if (genre) {
+        // Use FIND_IN_SET to check if the genre is present in the comma-separated list
+        sqlQuery += ` AND FIND_IN_SET('${genre}', a.genre) > 0`;
     }
 
+    // Pagination (LIMIT and OFFSET)
     const offset = (page - 1) * pageSize;
+    sqlQuery += ` LIMIT ${pageSize} OFFSET ${offset}`;
+    console.log(sqlQuery);
+    let baseQuery = Prisma.raw(sqlQuery);
+    // Execute the modified query
+    try {
+        const videos = await client.$queryRaw(baseQuery);
 
-    const videosByGenre = await client.$queryRaw`
-            SELECT * FROM videos
-            WHERE FIND_IN_SET(${genre}, genre) > 0
-            LIMIT ${pageSize} OFFSET ${offset}
-        `;
+        if (videos.length === 0) {
+            return res.status(404).json({ message: 'No videos found with the specified genre.' });
+        }
 
-
-    res.status(200).json({
-        status: true,
-        artists: videosByGenre.filter((artist, index, arr) => arr.indexOf(artist) === index)
-    })
-})
+        res.json({ status: true, videos });
+    } catch (error) {
+        console.error('Error executing SQL query:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+});
 
 export const getMusicVideosBySortingMode = expressAsyncHandler(async (req, res, next) => {
 
@@ -144,6 +153,81 @@ export const getMusicVideosBySortingMode = expressAsyncHandler(async (req, res, 
     res.status(200).json({
         status: true,
         videos: videos.filter((video, index, arr) => arr.indexOf(video) === index)
+    })
+})
+
+export const getMusicVideosByFilter = expressAsyncHandler(async (req, res, next) => {
+    const { gender, ageFilter, groupType, pageSize = 10, page = 1 } = req.query;
+
+    let sqlQuery = `SELECT v.* FROM videos v
+                    INNER JOIN artistes a ON v.artist_id = a.id_
+                    WHERE 1=1`;
+
+    // Gender filter
+    if (gender) {
+        sqlQuery += ` AND a.gender = '${gender}'`; // Assuming gender is a field in the artistes table
+    }
+
+    // Group type filter
+    if (groupType) {
+        sqlQuery += ` AND a.group_type = '${groupType}'`; // Assuming group_type is a field in the artistes table
+    }
+
+    // Age filter (assuming dob is a field in the artistes table)
+    if (ageFilter) {
+        switch (ageFilter) {
+            case '20>age':
+                sqlQuery += " AND TIMESTAMPDIFF(YEAR, a.dob, CURDATE()) < 20";
+                break;
+            case '30-40':
+                sqlQuery += " AND TIMESTAMPDIFF(YEAR, a.dob, CURDATE()) BETWEEN 30 AND 40";
+                break;
+            case '20-30':
+                sqlQuery += " AND TIMESTAMPDIFF(YEAR, a.dob, CURDATE()) BETWEEN 20 AND 30";
+                break;
+            case '40<age':
+                sqlQuery += " AND TIMESTAMPDIFF(YEAR, a.dob, CURDATE()) > 40";
+                break;
+        }
+    }
+
+    // Add pagination
+    const offset = (page - 1) * pageSize;
+    sqlQuery += ` LIMIT ${pageSize} OFFSET ${offset}`;
+    let baseQuery = Prisma.raw(sqlQuery);
+
+    // Execute the modified query
+    try {
+        const videos = await client.$queryRaw(baseQuery);
+        if (videos.length === 0) {
+            return res.status(404).json({ message: 'No videos found with the specified filters.' });
+        }
+        res.status(200).json({ status: true, videos });
+    } catch (error) {
+        res.json({ status: true, videos });
+        console.error('Error executing SQL query:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+});
+
+export const getMusicVideosBySearch = expressAsyncHandler(async (req, res, next) => {
+    const { search, page = 1, pageSize = 10 } = req.body
+    
+    const videos = await client.videos.findMany({
+        take: parseInt(pageSize),
+        skip: (page - 1) * pageSize,
+        where: {
+            title: {
+                contains: search.toLowerCase()
+            },
+        },
+    });
+
+    if (!videos) return next({ message: 'artist could not be found', status: 404 })
+
+    res.status(200).json({
+        status: true,
+        videos,
     })
 })
 
@@ -418,19 +502,18 @@ export const getArtistesByfilter = expressAsyncHandler(async (req, res, next) =>
                 break;
         }
     }
-    let baseQuery = Prisma.raw(sqlQuery);
     const offset = (page - 1) * pageSize;
-
-
+    sqlQuery += `LIMIT ${pageSize} OFFSET ${offset}`;
+    let baseQuery = Prisma.raw(sqlQuery);
     const artists = await client.$queryRaw(baseQuery, pageSize, offset);
 
+    console.log(artists.length);
     if (artists.length === 0) {
         return res.status(404).json({ message: 'No artists found with the specified filters.' });
     }
 
     res.json({ status: true, artists });
 })
-
 
 export const getArtist = expressAsyncHandler(async (req, res, next) => {
     const { artist_id } = req.params
@@ -470,6 +553,7 @@ export const getAlbumsBySearch = expressAsyncHandler(async (req, res, next) => {
 
     const albums = await client.albums.findMany({
         where: {
+            
             name_: {
                 contains: search.toLowerCase()
             },
@@ -483,8 +567,6 @@ export const getAlbumsBySearch = expressAsyncHandler(async (req, res, next) => {
         albums,
     })
 })
-
-
 
 export const getAlbums = expressAsyncHandler(async (req, res, next) => {
     const { page, pageSize, query } = req.query
