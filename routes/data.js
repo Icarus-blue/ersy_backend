@@ -1071,11 +1071,83 @@ const router = Router()
  *                     example: 'No videos found with the specified search term.'
  */
 
+/**
+ * @swagger
+ * paths:
+ *   /data/gallery/search:
+ *     post:
+ *       summary: Search galleries by artist name
+ *       tags:
+ *         - Gallery
+ *       description: Fetches gallery items based on a search term for the artist's name.
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - artistName
+ *               properties:
+ *                 artistName:
+ *                   type: string
+ *                   description: The artist's name to search for in the gallery.
+ *                   example: "Picasso"
+ *                 pageSize:
+ *                   type: integer
+ *                   description: The number of gallery items to return per page.
+ *                   default: 10
+ *                   example: 10
+ *                 page:
+ *                   type: integer
+ *                   description: The page number for pagination.
+ *                   default: 1
+ *                   example: 1
+ *       responses:
+ *         200:
+ *           description: Successfully found matching galleries.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: boolean
+ *                     example: true
+ *                   galleries:
+ *                     type: array
+ *                     items:
+ *                       $ref: '#/components/schemas/GalleryItem'
+ *         404:
+ *           description: No galleries found matching the artist name.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   message:
+ *                     type: string
+ *                     example: 'No galleries found for artists containing "Picasso"'
+ *         500:
+ *           description: Internal server error.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   message:
+ *                     type: string
+ *                     example: 'Internal server error.'
+ *        
+ */
+
 router.get('/videos', VideoController.getMusicVideos)
 router.get('/videos/genre', VideoController.getMusicVideosByGenre)
 router.get('/videos/sortmode', VideoController.getMusicVideosBySortingMode)
 router.get('/videos/filter', VideoController.getMusicVideosByFilter)
 router.post('/videos/search', VideoController.getMusicVideosBySearch)
+
+// router.get('/interviews', VideoController.getInterviews)
 
 router.get('/artists', VideoController.getArtistes)
 router.post('/artists/genre', VideoController.getArtistesByGenre)
@@ -1090,4 +1162,6 @@ router.get('/albums', VideoController.getAlbums)
 router.get('/albums/addentry', VideoController.addEntry)
 
 router.get('/gallery', VideoController.getGallery)
+router.post('/gallery/search', VideoController.getGalleryBySearch)
+
 export default router

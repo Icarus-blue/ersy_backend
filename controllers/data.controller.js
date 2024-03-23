@@ -212,7 +212,7 @@ export const getMusicVideosByFilter = expressAsyncHandler(async (req, res, next)
 
 export const getMusicVideosBySearch = expressAsyncHandler(async (req, res, next) => {
     const { search, page = 1, pageSize = 10 } = req.body
-    
+
     const videos = await client.videos.findMany({
         take: parseInt(pageSize),
         skip: (page - 1) * pageSize,
@@ -553,7 +553,7 @@ export const getAlbumsBySearch = expressAsyncHandler(async (req, res, next) => {
 
     const albums = await client.albums.findMany({
         where: {
-            
+
             name_: {
                 contains: search.toLowerCase()
             },
@@ -596,7 +596,6 @@ export const getGallery = expressAsyncHandler(async (req, res, next) => {
     const gallery = await client.gallery.findMany({
         take: parseInt(pageSize),
         skip: (page - 1) * pageSize,
-
     });
 
     // await Prisma.$queryRwa
@@ -608,6 +607,31 @@ export const getGallery = expressAsyncHandler(async (req, res, next) => {
 
 })
 
+export const getGalleryBySearch = expressAsyncHandler(async (req, res, next) => {
+    const { artistName, pageSize = 10, page = 1 } = req.body;
+
+    try {
+        let query = `
+            SELECT g.*
+            FROM gallery g
+            INNER JOIN artistes a ON g.artist_id = a.id_
+            WHERE 1=1 AND FIND_IN_SET('${artistName}', a.name_) > 0`;
+
+        const offset = (page - 1) * pageSize;
+        query += ` LIMIT ${pageSize} OFFSET ${offset}`;
+        let baseQuery = Prisma.raw(query);
+        const galleries = await client.$queryRaw(baseQuery);
+
+        if (galleries.length === 0) {
+            return res.status(404).json({ message: `No galleries found for artist "${artistName}"` });
+        }
+
+        res.json({ status: true, galleries });
+    } catch (error) {
+        console.error('Error retrieving galleries:', error);
+        res.status(500).json({ message: 'Internal server error.' });
+    }
+})
 
 export const getPodcasts = expressAsyncHandler(async (req, res, next) => {
     const podcasts = await client.po
@@ -629,3 +653,35 @@ export const addEntry = expressAsyncHandler(async (req, res, next) => {
     })
 
 })
+
+
+// export const getInterviews = expressAsyncHandler(async (req, res, next) => {
+
+//     const { page = 1, pageSize = 10, query } = req.query
+
+//     let where = {
+//         name_: {
+//             not: '0'
+//         }
+//     };
+
+//     if (query) {
+//         where.name_ = {
+//             contains: query
+//         };
+//     }
+
+//     console.log('where', where)
+//     const artistes = await client.artistes.findMany({
+//         take: parseInt(pageSize),
+//         skip: (page - 1) * pageSize,
+//         distinct: ['id_'],
+//         where: where
+
+//     })
+
+//     res.status(200).json({
+//         status: true,
+//         artists: artistes.filter((artist, index, arr) => arr.indexOf(artist) === index)
+//     })
+// })
