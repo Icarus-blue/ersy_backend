@@ -633,7 +633,7 @@ const router = Router()
  *                   artists:
  *                     type: array
  *                     items:
- *                       $ref: '#/components/schemas/Artist'
+ *                    
  *         404:
  *           description: No artists found matching the search criteria.
  *           content:
@@ -648,12 +648,66 @@ const router = Router()
  *                     type: string
  *                     example: 'artist could not be found'
  */
+
+/**
+ * @swagger
+ * paths:
+ *   /data/albums/search:
+ *     post:
+ *       summary: Search for artists by name
+ *       tags:
+ *         - Albums
+ *       description: Searches for artists whose names contain the provided search term, using a case-insensitive search.
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - search
+ *               properties:
+ *                 search:
+ *                   type: string
+ *                   description: The search term used to query artist names.
+ *                   example: 'John'
+ *       responses:
+ *         200:
+ *           description: Successfully found matching artists.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: boolean
+ *                     example: true
+ *                   albums:
+ *                     type: array
+ *                     items:
+ *                    
+ *         404:
+ *           description: No artists found matching the search criteria.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: boolean
+ *                     example: false
+ *                   message:
+ *                     type: string
+ *                     example: 'artist could not be found'
+ */
+
 router.get('/videos', VideoController.getMusicVideos)
 router.get('/artists', VideoController.getArtistes)
 router.post('/artists/genre', VideoController.getArtistesByGenre)
 router.post('/artists/sortmode', VideoController.getArtistesBySortingMode)
 router.post('/artists/filter', VideoController.getArtistesByfilter)
 router.post('/artists/search', VideoController.getArtistesBySearch)
+router.post('/albums/search', VideoController.getAlbumsBySearch)
 router.get("/artists/:artist_id", VideoController.getArtist)
 router.get('/albums', VideoController.getAlbums)
 router.get('/gallery', VideoController.getGallery)

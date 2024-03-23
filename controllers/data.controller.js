@@ -299,6 +299,26 @@ export const getArtistesBySearch = expressAsyncHandler(async (req, res, next) =>
     })
 })
 
+export const getAlbumsBySearch = expressAsyncHandler(async (req, res, next) => {
+    const { search } = req.body
+
+    const albums = await client.albums.findMany({
+        where: {
+            name_: {
+                contains: search.toLowerCase()          
+            },
+        },
+    });
+    console.log(albums.length);
+    if (!albums) return next({ message: 'artist could not be found', status: 404 })
+
+    res.status(200).json({
+        status: true,
+        albums,
+    })
+})
+
+
 
 export const getAlbums = expressAsyncHandler(async (req, res, next) => {
     const { page, pageSize, query } = req.query
