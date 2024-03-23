@@ -223,9 +223,7 @@ export const getArtistesBySortingMode = expressAsyncHandler(async (req, res, nex
 
 export const getArtistesByfilter = expressAsyncHandler(async (req, res, next) => {
     const { gender, ageFilter, groupType, pageSize = 10, page = 1 } = req.body;
-    // Start building the where clause based on provided filters
-    let sqlQuery = 'SELECT * FROM artistes WHERE 1=1'; // Always true, serves as an initializer
-
+    let sqlQuery = 'SELECT * FROM artistes WHERE 1=1';
     // Gender filter
     if (gender) {
         sqlQuery += ` AND gender = '${gender}'`; // Ensure gender values are sanitized or validated
@@ -279,6 +277,25 @@ export const getArtist = expressAsyncHandler(async (req, res, next) => {
         status: true,
         artist,
         // songs: artistSongs
+    })
+})
+
+export const getArtistesBySearch = expressAsyncHandler(async (req, res, next) => {
+    const { search } = req.body
+    console.log(search);
+    const artists = await client.artistes.findMany({
+        where: {
+            name_: {
+                contains: search.toLowerCase()          
+            },
+        },
+    });
+    console.log(artists.length);
+    if (!artists) return next({ message: 'artist could not be found', status: 404 })
+
+    res.status(200).json({
+        status: true,
+        artists,
     })
 })
 
