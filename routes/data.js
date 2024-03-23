@@ -379,18 +379,30 @@ const router = Router()
 
 /**
  * @swagger
- * /artists/genre:
+ * /data/artists/genre:
  *   post:
  *     summary: Retrieve artists by genre
  *     tags: [Artists]
- *     description: This endpoint returns artists filtered by the specified genre.
- *     parameters:
- *       - in: query
- *         name: genre
- *         schema:
- *           type: string
- *         required: true
- *         description: The genre to filter artists by.
+ *     description: This endpoint returns a paginated list of artists filtered by the specified genre. The example uses 'hip hop' as a genre filter, but any genre can be specified.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               genre:
+ *                 type: string
+ *                 description: Genre to filter artists by.
+ *                 example: hip hop
+ *               page:
+ *                 type: integer
+ *                 description: Page number for pagination.
+ *                 example: 1
+ *               pageSize:
+ *                 type: integer
+ *                 description: Number of items per page for pagination.
+ *                 example: 10
  *     responses:
  *       200:
  *         description: A list of artists filtered by genre.
@@ -402,16 +414,15 @@ const router = Router()
  *                 status:
  *                   type: boolean
  *                   example: true
- *                 artists:
+ *                 artistes:
  *                   type: array
  *                   items:
- *                     $ref: '#/components/schemas/Artist'
  *       400:
- *         description: Bad request, such as missing or invalid genre parameter.
+ *         description: Bad request, such as missing genre in the request body.
  *       500:
  *         description: Server error.
  */
-
+ 
 /**
  * @swagger
  * /data/artists/{artist_id}:
@@ -491,6 +502,7 @@ const router = Router()
 router.get('/videos', VideoController.getMusicVideos)
 router.get('/artists', VideoController.getArtistes)
 router.post('/artists/genre', VideoController.getArtistesByGenre)
+router.post('/artists/sortmode', VideoController.getArtistesBySortingMode)
 router.get("/artists/:artist_id", VideoController.getArtist)
 router.get('/albums', VideoController.getAlbums)
 router.get('/gallery', VideoController.getGallery)

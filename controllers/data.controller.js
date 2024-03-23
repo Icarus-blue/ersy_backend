@@ -89,18 +89,52 @@ export const getArtistes = expressAsyncHandler(async (req, res, next) => {
 
 export const getArtistesByGenre = expressAsyncHandler(async (req, res, next) => {
 
-    const { genre } = req.query;
-    console.log(genre);
-    // res.status(200).json({
-    //     status: true,
-    //     artists: artistes.filter((artist, index, arr) => arr.indexOf(artist) === index)
-    // })
+    const { genre, page = 1, pageSize = 10 } = req.body;
+
+    if (!genre) {
+        return res.status(400).json({ message: 'Genre is required' });
+    }
+
+    const offset = (page - 1) * pageSize;
+
+    const artistesByGenre = await client.$queryRaw`
+            SELECT * FROM artistes
+            WHERE FIND_IN_SET(${genre}, genre) > 0
+            LIMIT ${pageSize} OFFSET ${offset}
+        `;
+
+
+    res.status(200).json({
+        status: true,
+        artists: artistesByGenre.filter((artist, index, arr) => arr.indexOf(artist) === index)
+    })
+})
+
+export const getArtistesBySortingMode = expressAsyncHandler(async (req, res, next) => {
+
+    const { filter, page = 1, pageSize = 10 } = req.body;
+
+    if (!filter) {
+        return res.status(400).json({ message: 'fiter mode is required' });
+    }
+
+    const offset = (page - 1) * pageSize;
+
+    const artistesByfilter = await client.$queryRaw`
+            SELECT * FROM artistes
+            WHERE FIND_IN_SET(${genre}, genre) > 0
+            LIMIT ${pageSize} OFFSET ${offset}
+        `;
+
+    res.status(200).json({
+        status: true,
+        artists: artistesByfilter.filter((artist, index, arr) => arr.indexOf(artist) === index)
+    })
 })
 
 
 export const getArtist = expressAsyncHandler(async (req, res, next) => {
     const { artist_id } = req.params
-    console.log(artist_id);
     const artist = await getArtistById(artist_id);
     if (!artist) return next({ message: 'artist could not be found', status: 404 })
 

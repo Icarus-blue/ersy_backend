@@ -63,8 +63,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // app.use('/', indexRouter);
 
-
-
 app.use('/users', usersRouter);
 app.use('/auth', authRouter)
 app.use('/data', videoRouter)

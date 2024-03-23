@@ -4,9 +4,9 @@ const swaggerOptions = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'Express API with Swagger',
+            title: 'ERSY website Backend API',
             version: '1.0.0',
-            description: 'A sample API',
+            description: 'ERSY website Backend API',
         },
     },
     // Path to the API docs
