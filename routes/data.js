@@ -422,7 +422,7 @@ const router = Router()
  *       500:
  *         description: Server error.
  */
- 
+
 /**
  * @swagger
  * /data/artists/{artist_id}:
@@ -701,14 +701,101 @@ const router = Router()
  *                     example: 'artist could not be found'
  */
 
+/**
+ * @swagger
+ * paths:
+ *   /data/albums/sortmode:
+ *     post:
+ *       summary: Sort albums based on specified criteria
+ *       tags:
+ *         - Albums
+ *       description: |
+ *         Allows sorting albums based on different criteria such as tracks count,
+ *         album duration, release date, and popularity of the artist.
+ *         filter  : "tracks" ,"duration","recent_first","oldest_first","most_popular_artist"
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               required:
+ *                 - filter
+ *               properties:
+ *                 filter:
+ *                   type: string
+ *                   description: |
+ *                     The criteria for sorting the albums.
+ *                     Valid options are 'tracks', 'duration', 'recent_first', 'oldest_first', 'most_popular_artist'.
+ *                   enum:
+ *                     - tracks
+ *                     - duration
+ *                     - recent_first
+ *                     - oldest_first
+ *                     - most_popular_artist
+ *                 page:
+ *                   type: integer
+ *                   description: Page number for pagination, starting from 1.
+ *                   example: 1
+ *                   default: 1
+ *                 pageSize:
+ *                   type: integer
+ *                   description: The number of items per page for pagination.
+ *                   example: 10
+ *                   default: 10
+ *       responses:
+ *         200:
+ *           description: Successfully retrieved sorted albums.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: boolean
+ *                     example: true
+ *                   albums:
+ *                     type: array
+ *                     items:
+ *                       $ref: '#/components/schemas/Album'
+ *         400:
+ *           description: Bad request, such as missing or invalid filter mode.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   message:
+ *                     type: string
+ *                     example: 'Filter mode is required'
+ *         404:
+ *           description: No albums found matching the sorting criteria.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: boolean
+ *                     example: false
+ *                   message:
+ *                     type: string
+ *                     example: 'Albums not found'
+ */
+
+
 router.get('/videos', VideoController.getMusicVideos)
+
 router.get('/artists', VideoController.getArtistes)
 router.post('/artists/genre', VideoController.getArtistesByGenre)
 router.post('/artists/sortmode', VideoController.getArtistesBySortingMode)
 router.post('/artists/filter', VideoController.getArtistesByfilter)
 router.post('/artists/search', VideoController.getArtistesBySearch)
-router.post('/albums/search', VideoController.getAlbumsBySearch)
 router.get("/artists/:artist_id", VideoController.getArtist)
+
+router.post('/albums/search', VideoController.getAlbumsBySearch)
+router.post('/albums/sortmode', VideoController.getAlbumsBySortingMode)
 router.get('/albums', VideoController.getAlbums)
+
 router.get('/gallery', VideoController.getGallery)
 export default router

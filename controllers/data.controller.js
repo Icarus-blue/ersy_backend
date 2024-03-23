@@ -221,6 +221,83 @@ export const getArtistesBySortingMode = expressAsyncHandler(async (req, res, nex
     })
 })
 
+export const getAlbumsBySortingMode = expressAsyncHandler(async (req, res, next) => {
+
+    const { filter, page = 1, pageSize = 10 } = req.body;
+
+    if (!filter) {
+        return res.status(400).json({ message: 'fiter mode is required' });
+    }
+
+    let where = {
+        artist_id: {
+            not: 0
+        }
+    };
+
+    let albums = null;
+    switch (filter) {
+        case 'tracks':          
+            albums = await client.albums.findMany({
+                take: parseInt(pageSize),
+                skip: (page - 1) * pageSize,
+                orderBy: {
+                    tracks_manuel: 'desc',
+                },
+                where
+            })
+            break;
+        case 'duration':
+            albums = await client.albums.findMany({
+                take: parseInt(pageSize),
+                skip: (page - 1) * pageSize,
+                distinct: ['id_'],
+                orderBy: {
+                    duration_manuel: 'desc',
+                },
+                where
+            })
+            break
+        case 'recent_first':
+            albums = await client.albums.findMany({
+                take: parseInt(pageSize),
+                skip: (page - 1) * pageSize,
+                distinct: ['id_'],
+                orderBy: {
+                    release_date: 'desc',
+                },
+                where
+            })
+            break;
+        case 'oldest_first':
+            albums = await client.albums.findMany({
+                take: parseInt(pageSize),
+                skip: (page - 1) * pageSize,
+                distinct: ['id_'],
+                orderBy: {
+                    release_date: 'asc',
+                },
+                where
+            })
+            break
+        case 'most_popular_artist':
+            albums = await client.albums.findMany({
+                take: parseInt(pageSize),
+                skip: (page - 1) * pageSize,
+                distinct: ['id_'],
+                where
+            })
+            break
+    }
+
+    if (!albums) return res.status(400).json({ message: 'Albums not found' });
+
+    res.status(200).json({
+        status: true,
+        albums: albums.filter((artist, index, arr) => arr.indexOf(artist) === index)
+    })
+})
+
 export const getArtistesByfilter = expressAsyncHandler(async (req, res, next) => {
     const { gender, ageFilter, groupType, pageSize = 10, page = 1 } = req.body;
     let sqlQuery = 'SELECT * FROM artistes WHERE 1=1';
@@ -286,7 +363,7 @@ export const getArtistesBySearch = expressAsyncHandler(async (req, res, next) =>
     const artists = await client.artistes.findMany({
         where: {
             name_: {
-                contains: search.toLowerCase()          
+                contains: search.toLowerCase()
             },
         },
     });
@@ -305,7 +382,7 @@ export const getAlbumsBySearch = expressAsyncHandler(async (req, res, next) => {
     const albums = await client.albums.findMany({
         where: {
             name_: {
-                contains: search.toLowerCase()          
+                contains: search.toLowerCase()
             },
         },
     });
