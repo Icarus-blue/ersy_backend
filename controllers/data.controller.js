@@ -58,6 +58,29 @@ export const getMusicVideos = expressAsyncHandler(async (req, res, next) => {
     })
 })
 
+export const getMusicVideosByGenre = expressAsyncHandler(async (req, res, next) => {
+
+    const { genre, page = 1, pageSize = 10 } = req.query;
+
+    if (!genre) {
+        return res.status(400).json({ message: 'Genre is required' });
+    }
+
+    const offset = (page - 1) * pageSize;
+
+    const videosByGenre = await client.$queryRaw`
+            SELECT * FROM videos
+            WHERE FIND_IN_SET(${genre}, genre) > 0
+            LIMIT ${pageSize} OFFSET ${offset}
+        `;
+
+
+    res.status(200).json({
+        status: true,
+        artists: videosByGenre.filter((artist, index, arr) => arr.indexOf(artist) === index)
+    })
+})
+
 export const getArtistes = expressAsyncHandler(async (req, res, next) => {
 
     const { page, pageSize, query } = req.query
@@ -440,4 +463,21 @@ export const getGallery = expressAsyncHandler(async (req, res, next) => {
 
 export const getPodcasts = expressAsyncHandler(async (req, res, next) => {
     const podcasts = await client.po
+})
+
+export const addEntry = expressAsyncHandler(async (req, res, next) => {
+    const { entry} = req.body
+
+    // const gallery = await client.gallery.findMany({
+    //     take: parseInt(pageSize),
+    //     skip: (page - 1) * pageSize,
+
+    // });
+    // await Prisma.$queryRwa
+
+    res.status(200).json({
+        status: true,
+        memsage :'added correctly'
+    })
+
 })

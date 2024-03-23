@@ -96,7 +96,7 @@ const router = Router()
  * /data/artists:
  *   get:
  *     summary: Retrieve a list of artistes
- *     tags: [Artistes]
+ *     tags: [Artists]
  *     description: This endpoint returns a list of artistes, supporting search by artist name and pagination.
  *     parameters:
  *       - in: query
@@ -783,8 +783,110 @@ const router = Router()
  *                     example: 'Albums not found'
  */
 
+/**
+ * @swagger
+ * paths:
+ *   /data/albums/addentry:
+ *     get:
+ *       summary: Add an album entry
+ *       tags:
+ *         - Albums
+ *       parameters:
+ *         - in: query
+ *           name: entry
+ *           required: true
+ *           schema:
+ *             type: string
+ *           description: The entry to be added.
+ *       responses:
+ *         200:
+ *           description: Entry added successfully.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: boolean
+ *                     example: true
+ *                   message:
+ *                     type: string
+ *                     example: 'added correctly'
+ *         400:
+ *           description: Bad request, such as missing entry.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: boolean
+ *                     example: false
+ *                   message:
+ *                     type: string
+ *                     example: 'Entry is required'
+ */
+
+/**
+ * @swagger
+ * paths:
+ *   /data/videos/genre:
+ *     get:
+ *       summary: Retrieve music videos by genre
+ *       tags:
+ *         - Videos
+ *       description: Fetches music videos filtered by a specific genre, with support for pagination.
+ *       parameters:
+ *         - in: query
+ *           name: genre
+ *           required: true
+ *           schema:
+ *             type: string
+ *           description: The genre to filter music videos by.
+ *         - in: query
+ *           name: page
+ *           schema:
+ *             type: integer
+ *             default: 1
+ *           description: The page number for pagination.
+ *         - in: query
+ *           name: pageSize
+ *           schema:
+ *             type: integer
+ *             default: 10
+ *           description: The number of items per page for pagination.
+ *       responses:
+ *         200:
+ *           description: Successfully retrieved music videos by the specified genre.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: boolean
+ *                     example: true
+ *                   artists:
+ *                     type: array
+ *                     items:
+ *                     
+ *         400:
+ *           description: Missing or invalid parameters, such as absent genre.
+ *           content:
+ *             application/json:
+ *               schema:
+ *                 type: object
+ *                 properties:
+ *                   status:
+ *                     type: boolean
+ *                     example: false
+ *                   message:
+ *                     type: string
+ *                     example: 'Genre is required'
+ */
 
 router.get('/videos', VideoController.getMusicVideos)
+router.get('/videos/genre', VideoController.getMusicVideosByGenre)
 
 router.get('/artists', VideoController.getArtistes)
 router.post('/artists/genre', VideoController.getArtistesByGenre)
@@ -796,6 +898,7 @@ router.get("/artists/:artist_id", VideoController.getArtist)
 router.post('/albums/search', VideoController.getAlbumsBySearch)
 router.post('/albums/sortmode', VideoController.getAlbumsBySortingMode)
 router.get('/albums', VideoController.getAlbums)
+router.get('/albums/addentry', VideoController.addEntry)
 
 router.get('/gallery', VideoController.getGallery)
 export default router
